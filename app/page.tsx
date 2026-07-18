@@ -164,13 +164,7 @@ export default function Page() {
               <img
                 src="/perfil.jpg"
                 alt="Luiz e Kaly"
-                className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                onLoad={(e) => {
-                  e.currentTarget.style.opacity = "1";
-                }}
-                onError={(e) => {
-                  e.currentTarget.remove();
-                }}
+                className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
           </div>
