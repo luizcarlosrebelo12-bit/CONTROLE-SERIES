@@ -23,15 +23,21 @@ export function SeriesCard({
   const [editingStatus, setEditingStatus] = useState(false);
 
   return (
-    <div className="bg-base-card border border-base-border rounded-xl p-4 flex items-center justify-between gap-4">
+    <div className="bg-base-card border border-base-border rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors hover:border-accent-luiz/40">
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-lg bg-accent-luiz/15 flex items-center justify-center text-accent-luiz shrink-0">
-          {midia.tipo === "serie" ? <Tv size={18} /> : <Film size={18} />}
+        <div
+          className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg ${
+            midia.pessoa.toLowerCase() === "kaly"
+              ? "bg-gradient-to-br from-accent-kaly to-pink-600 shadow-accent-kaly/25"
+              : "bg-gradient-to-br from-accent-luiz to-blue-600 shadow-accent-luiz/25"
+          }`}
+        >
+          {midia.tipo === "serie" ? <Tv size={20} /> : <Film size={20} />}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold truncate">{midia.nome}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-accent-luiz/15 text-accent-luiz border border-accent-luiz/30">
               {midia.tipo === "serie" ? "Série" : "Filme"}
             </span>
             {editingStatus ? (
