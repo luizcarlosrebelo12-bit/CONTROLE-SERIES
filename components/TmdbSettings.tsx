@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2, ChevronDown } from "lucide-react";
 
 interface Props {
   apiKey: string;
@@ -19,13 +20,20 @@ export function TmdbSettings({ apiKey, onSave }: Props) {
       >
         <div>
           <div className="font-semibold">Chave da API do TMDB</div>
-          <div className="text-sm text-zinc-400">
-            {apiKey ? "Configurada ✅" : "Necessária para checar novidades"}
+          <div className="text-sm text-zinc-400 flex items-center gap-1">
+            {apiKey ? (
+              <>
+                <CheckCircle2 size={14} className="text-green-400" /> Configurada
+              </>
+            ) : (
+              "Necessária para checar novidades"
+            )}
           </div>
         </div>
-        <span className={`transition-transform ${open ? "rotate-180" : ""}`}>
-          ⌄
-        </span>
+        <ChevronDown
+          size={18}
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (

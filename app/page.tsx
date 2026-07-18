@@ -2,28 +2,31 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Midia, StatusSerie } from "@/lib/types";
-import { loadMidias, saveMidias, loadTmdbKey, saveTmdbKey } from "@/lib/storage";
+import { buscarMidias, salvarMidia, excluirMidia } from "@/lib/midiasApi";
+import { loadTmdbKey, saveTmdbKey } from "@/lib/storage";
+import { supabaseConfigurado } from "@/lib/supabaseClient";
 import { SeriesCard } from "@/components/SeriesCard";
 import { MediaForm } from "@/components/MediaForm";
 import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
+import { Clapperboard, RefreshCw, List, Cloud, HardDrive } from "lucide-react";
 
 export default function Page() {
   const [midias, setMidias] = useState<Midia[]>([]);
   const [apiKey, setApiKey] = useState("");
   const [checando, setChecando] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState<Midia | null>(null);
 
-  useEffect(() => {
-    setMidias(loadMidias());
-    setApiKey(loadTmdbKey());
-    setLoaded(true);
-  }, []);
+  async function recarregar() {
+    const dados = await buscarMidias();
+    setMidias(dados);
+  }
 
   useEffect(() => {
-    if (loaded) saveMidias(midias);
-  }, [midias, loaded]);
+    setApiKey(loadTmdbKey());
+    recarregar().finally(() => setCarregando(false));
+  }, []);
 
   const stats = useMemo(() => {
     const series = midias.filter((m) => m.tipo === "serie").length;
@@ -32,40 +35,43 @@ export default function Page() {
     return { series, filmes, horas: Math.round(minutos / 60) };
   }, [midias]);
 
-  function handleAdd(nova: Midia) {
+  async function handleAdd(nova: Midia) {
     setMidias((prev) => [nova, ...prev]);
+    await salvarMidia(nova);
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
     setMidias((prev) => prev.filter((m) => m.id !== id));
+    await excluirMidia(id);
   }
 
-  function handleUpdate(atualizada: Midia) {
+  async function handleUpdate(atualizada: Midia) {
     setMidias((prev) =>
       prev.map((m) => (m.id === atualizada.id ? atualizada : m))
     );
     setEditando(null);
+    await salvarMidia(atualizada);
   }
 
-  function handleUpdateStatus(id: string, status: StatusSerie) {
-    setMidias((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status } : m))
-    );
+  async function handleUpdateStatus(id: string, status: StatusSerie) {
+    const alvo = midias.find((m) => m.id === id);
+    if (!alvo) return;
+    const atualizada = { ...alvo, status };
+    setMidias((prev) => prev.map((m) => (m.id === id ? atualizada : m)));
+    await salvarMidia(atualizada);
   }
 
-  function handleMarcarVisto(id: string) {
-    setMidias((prev) =>
-      prev.map((m) =>
-        m.id === id
-          ? {
-              ...m,
-              temporada: m.ultimaTemporadaVista ?? m.temporada,
-              episodio: m.ultimoEpisodioVisto ?? m.episodio,
-              novidade: null,
-            }
-          : m
-      )
-    );
+  async function handleMarcarVisto(id: string) {
+    const alvo = midias.find((m) => m.id === id);
+    if (!alvo) return;
+    const atualizada = {
+      ...alvo,
+      temporada: alvo.ultimaTemporadaVista ?? alvo.temporada,
+      episodio: alvo.ultimoEpisodioVisto ?? alvo.episodio,
+      novidade: null,
+    };
+    setMidias((prev) => prev.map((m) => (m.id === id ? atualizada : m)));
+    await salvarMidia(atualizada);
   }
 
   async function checarNovidades() {
@@ -97,6 +103,7 @@ export default function Page() {
       setMidias((prev) =>
         prev.map((m) => atualizadas.find((a) => a.id === m.id) || m)
       );
+      await Promise.all(atualizadas.map((m) => salvarMidia(m)));
     } finally {
       setChecando(false);
     }
@@ -110,8 +117,8 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-base-bg pb-16">
       <div className="max-w-2xl mx-auto px-4 pt-10 flex flex-col items-center text-center">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent-luiz/40 to-accent-kaly/40 flex items-center justify-center text-3xl mb-4">
-          🎬
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent-luiz/40 to-accent-kaly/40 flex items-center justify-center mb-4">
+          <Clapperboard size={36} className="text-white" />
         </div>
         <h2 className="text-lg font-semibold">
           <span className="text-accent-luiz">Luiz</span>{" "}
@@ -147,9 +154,10 @@ export default function Page() {
         <button
           onClick={checarNovidades}
           disabled={checando}
-          className="bg-accent-luiz/15 border border-accent-luiz/40 text-accent-luiz rounded-xl py-3 font-semibold hover:bg-accent-luiz/25 disabled:opacity-50"
+          className="bg-accent-luiz/15 border border-accent-luiz/40 text-accent-luiz rounded-xl py-3 font-semibold flex items-center justify-center gap-2 hover:bg-accent-luiz/25 disabled:opacity-50"
         >
-          {checando ? "Checando novidades..." : "🔄 Checar novos episódios/temporadas"}
+          <RefreshCw size={18} className={checando ? "animate-spin" : ""} />
+          {checando ? "Checando novidades..." : "Checar novos episódios/temporadas"}
         </button>
 
         <MediaForm
@@ -161,13 +169,19 @@ export default function Page() {
 
         <div className="bg-base-card border border-base-border rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="font-semibold">📋 Minha Lista</span>
+            <span className="font-semibold flex items-center gap-2">
+              <List size={18} /> Minha Lista
+            </span>
             <span className="text-xs bg-white/5 px-2 py-1 rounded-full text-zinc-400">
               {midias.length} itens
             </span>
           </div>
 
-          {midias.length === 0 ? (
+          {carregando ? (
+            <p className="text-zinc-500 text-sm text-center py-8">
+              Carregando...
+            </p>
+          ) : midias.length === 0 ? (
             <p className="text-zinc-500 text-sm text-center py-8">
               Nenhuma série ou filme adicionado ainda.
             </p>
@@ -187,8 +201,16 @@ export default function Page() {
           )}
         </div>
 
-        <p className="text-center text-xs text-zinc-600 mt-4">
-          💾 Salvo neste navegador
+        <p className="text-center text-xs text-zinc-600 mt-4 flex items-center justify-center gap-1">
+          {supabaseConfigurado ? (
+            <>
+              <Cloud size={14} /> Sincronizado na nuvem
+            </>
+          ) : (
+            <>
+              <HardDrive size={14} /> Salvo neste navegador (configure o Supabase para sincronizar)
+            </>
+          )}
         </p>
       </div>
     </main>

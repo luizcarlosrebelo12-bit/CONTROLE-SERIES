@@ -2,6 +2,7 @@
 
 import { Midia } from "@/lib/types";
 import { useEffect, useState } from "react";
+import { Tv, Film, Pencil, Plus, ChevronDown, X, Save, Sparkles } from "lucide-react";
 
 interface Props {
   modoEdicao?: Midia | null;
@@ -93,8 +94,8 @@ export function MediaForm({
         onClick={() => (modoEdicao ? undefined : setOpen((o) => !o))}
         className="w-full flex items-center gap-3 p-4 text-left"
       >
-        <span className="w-9 h-9 rounded-full bg-accent-luiz/20 text-accent-luiz flex items-center justify-center text-lg shrink-0">
-          {modoEdicao ? "✏️" : "＋"}
+        <span className="w-9 h-9 rounded-full bg-accent-luiz/20 text-accent-luiz flex items-center justify-center shrink-0">
+          {modoEdicao ? <Pencil size={16} /> : <Plus size={18} />}
         </span>
         <div className="flex-1">
           <div className="font-semibold">
@@ -105,16 +106,17 @@ export function MediaForm({
           </div>
         </div>
         {!modoEdicao && (
-          <span className={`transition-transform ${open ? "rotate-180" : ""}`}>
-            ⌄
-          </span>
+          <ChevronDown
+            size={18}
+            className={`transition-transform ${open ? "rotate-180" : ""}`}
+          />
         )}
       </button>
 
       {open && (
         <form onSubmit={handleSubmit} className="p-4 pt-0 flex flex-col gap-4">
           <div className="flex items-center gap-2 text-sm text-zinc-400 mb-1">
-            <span>✨ Editar mídia</span>
+            <Sparkles size={14} /> <span>Editar mídia</span>
             <span className="text-zinc-600">— Adicione séries e filmes</span>
           </div>
 
@@ -129,7 +131,7 @@ export function MediaForm({
                   : "bg-base-bg border border-base-border text-zinc-400"
               }`}
             >
-              📺 Série
+              <Tv size={16} /> Série
             </button>
             <button
               type="button"
@@ -140,7 +142,7 @@ export function MediaForm({
                   : "bg-base-bg border border-base-border text-zinc-400"
               }`}
             >
-              🎬 Filme
+              <Film size={16} /> Filme
             </button>
           </div>
 
@@ -262,13 +264,13 @@ export function MediaForm({
               onClick={handleCancel}
               className="py-3 rounded-xl font-semibold bg-base-bg border border-base-border text-zinc-300 flex items-center justify-center gap-2"
             >
-              ✕ Cancelar
+              <X size={16} /> Cancelar
             </button>
             <button
               type="submit"
               className="py-3 rounded-xl font-semibold bg-accent-luiz text-white flex items-center justify-center gap-2 hover:opacity-90"
             >
-              💾 {modoEdicao ? "Atualizar" : "Adicionar"}
+              <Save size={16} /> {modoEdicao ? "Atualizar" : "Adicionar"}
             </button>
           </div>
         </form>

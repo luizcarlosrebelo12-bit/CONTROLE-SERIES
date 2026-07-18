@@ -3,6 +3,7 @@
 import { Midia, STATUS_LABELS, StatusSerie } from "@/lib/types";
 import { StatusBadge, NovidadeBadge } from "./StatusBadge";
 import { useState } from "react";
+import { Tv, Film, User, Clock, Pencil, Trash2 } from "lucide-react";
 
 interface Props {
   midia: Midia;
@@ -25,7 +26,7 @@ export function SeriesCard({
     <div className="bg-base-card border border-base-border rounded-xl p-4 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-10 h-10 rounded-lg bg-accent-luiz/15 flex items-center justify-center text-accent-luiz shrink-0">
-          🎬
+          {midia.tipo === "serie" ? <Tv size={18} /> : <Film size={18} />}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -59,18 +60,20 @@ export function SeriesCard({
           </div>
           <div className="text-sm text-zinc-400 flex items-center gap-3 mt-1">
             <span
-              className={
+              className={`flex items-center gap-1 ${
                 midia.pessoa.toLowerCase() === "kaly"
                   ? "text-accent-kaly"
                   : "text-accent-luiz"
-              }
+              }`}
             >
-              👤 {midia.pessoa}
+              <User size={14} /> {midia.pessoa}
             </span>
             <span>
               T{midia.temporada} E{midia.episodio}
             </span>
-            <span>⏱ {midia.minutos} min</span>
+            <span className="flex items-center gap-1">
+              <Clock size={14} /> {midia.minutos} min
+            </span>
           </div>
         </div>
       </div>
@@ -89,14 +92,14 @@ export function SeriesCard({
           className="text-zinc-500 hover:text-accent-luiz p-1"
           aria-label="Editar"
         >
-          ✏️
+          <Pencil size={16} />
         </button>
         <button
           onClick={() => onDelete(midia.id)}
           className="text-zinc-500 hover:text-red-400 p-1"
           aria-label="Excluir"
         >
-          🗑
+          <Trash2 size={16} />
         </button>
       </div>
     </div>

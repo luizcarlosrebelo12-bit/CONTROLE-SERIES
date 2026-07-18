@@ -20,6 +20,7 @@ export interface Midia {
   ultimoEpisodioVisto?: number;
   novidade?: Novidade;
   tmdbStatus?: string;
+  criadoEm?: string;
 }
 
 export const STATUS_LABELS: Record<StatusSerie, string> = {
