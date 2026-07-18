@@ -11,6 +11,32 @@ import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
 import { Clapperboard, RefreshCw, List, Cloud, HardDrive } from "lucide-react";
 
+const SEED_KEY = "controle-series:seeded-v1";
+
+function dadosIniciais(): Midia[] {
+  const base = [
+    { nome: "CANGAÇO NOVO", pessoa: "Luiz", temporada: 1, episodio: 2, minutos: 0 },
+    { nome: "SAFE", pessoa: "Kaly", temporada: 1, episodio: 7, minutos: 5 },
+    { nome: "SCORPION", pessoa: "Luiz", temporada: 2, episodio: 10, minutos: 0 },
+    { nome: "DE FÉRIAS COM O EX DIRETORIA", pessoa: "Luiz", temporada: 2, episodio: 9, minutos: 0 },
+    { nome: "O RESIDENTE", pessoa: "Kaly", temporada: 1, episodio: 8, minutos: 15 },
+    { nome: "GREYS ANATOMY", pessoa: "Kaly", temporada: 22, episodio: 19, minutos: 0 },
+  ];
+  return base.map((b) => ({
+    id: crypto.randomUUID(),
+    nome: b.nome,
+    tipo: "serie" as const,
+    pessoa: b.pessoa,
+    temporada: b.temporada,
+    episodio: b.episodio,
+    minutos: b.minutos,
+    status: "assistindo" as const,
+    ultimaTemporadaVista: b.temporada,
+    ultimoEpisodioVisto: b.episodio,
+    novidade: null,
+  }));
+}
+
 export default function Page() {
   const [midias, setMidias] = useState<Midia[]>([]);
   const [apiKey, setApiKey] = useState("");
@@ -21,11 +47,20 @@ export default function Page() {
   async function recarregar() {
     const dados = await buscarMidias();
     setMidias(dados);
+    return dados;
   }
 
   useEffect(() => {
     setApiKey(loadTmdbKey());
-    recarregar().finally(() => setCarregando(false));
+    recarregar().then(async (dados) => {
+      const jaSemeado = typeof window !== "undefined" && window.localStorage.getItem(SEED_KEY);
+      if ((!dados || dados.length === 0) && !jaSemeado) {
+        const iniciais = dadosIniciais();
+        setMidias(iniciais);
+        await Promise.all(iniciais.map((m) => salvarMidia(m)));
+        window.localStorage.setItem(SEED_KEY, "1");
+      }
+    }).finally(() => setCarregando(false));
   }, []);
 
   const stats = useMemo(() => {
