@@ -151,34 +151,65 @@ export default function Page() {
 
   return (
     <main className="min-h-screen bg-base-bg pb-16">
-      <div className="max-w-2xl mx-auto px-4 pt-10 flex flex-col items-center text-center">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent-luiz/40 to-accent-kaly/40 flex items-center justify-center mb-4">
-          <Clapperboard size={36} className="text-white" />
+      <div className="max-w-2xl mx-auto px-4 pt-12 flex flex-col items-center text-center">
+        {/* Avatar com aura de brilho */}
+        <div className="relative mb-5 flex items-center justify-center">
+          <div
+            aria-hidden
+            className="absolute -inset-x-24 -inset-y-6 rounded-full bg-gradient-to-r from-accent-luiz/40 via-purple-500/20 to-accent-kaly/40 blur-3xl opacity-70"
+          />
+          <div className="relative w-28 h-28 rounded-full p-[3px] bg-gradient-to-br from-accent-luiz via-purple-400 to-accent-kaly shadow-2xl shadow-accent-luiz/20">
+            <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-accent-luiz/30 to-accent-kaly/30 flex items-center justify-center">
+              <Clapperboard size={40} className="text-white/80" />
+              <img
+                src="/perfil.jpg"
+                alt="Luiz e Kaly"
+                className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                onLoad={(e) => {
+                  e.currentTarget.style.opacity = "1";
+                }}
+                onError={(e) => {
+                  e.currentTarget.remove();
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <h2 className="text-lg font-semibold">
+
+        <h2 className="text-lg font-semibold tracking-tight">
           <span className="text-accent-luiz">Luiz</span>{" "}
           <span className="text-zinc-500">&</span>{" "}
           <span className="text-accent-kaly">Kaly</span>
         </h2>
-        <h1 className="text-3xl font-bold mt-3">Controle de Mídia</h1>
-        <p className="text-zinc-400 mt-1">Séries e filmes que assistimos juntos</p>
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-6">
-          <div className="bg-base-card border border-base-border rounded-xl py-4">
-            <div className="text-2xl font-bold text-accent-luiz">
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-accent-luiz/30 bg-accent-luiz/10 px-4 py-2 text-sm font-medium text-accent-luiz">
+          <Clapperboard size={16} />
+          Nossa biblioteca
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mt-4 text-balance">
+          Controle de Mídia
+        </h1>
+        <p className="text-zinc-400 mt-2 text-pretty">
+          Séries e filmes que assistimos juntos
+        </p>
+
+        <div className="grid grid-cols-3 gap-3 w-full mt-8">
+          <div className="bg-base-card border border-base-border rounded-2xl py-5 transition-colors hover:border-accent-luiz/40">
+            <div className="text-3xl font-extrabold text-accent-luiz">
               {stats.series}
             </div>
-            <div className="text-xs text-zinc-400">Séries</div>
+            <div className="text-xs text-zinc-400 mt-1">Séries</div>
           </div>
-          <div className="bg-base-card border border-base-border rounded-xl py-4">
-            <div className="text-2xl font-bold text-accent-kaly">
+          <div className="bg-base-card border border-base-border rounded-2xl py-5 transition-colors hover:border-accent-kaly/40">
+            <div className="text-3xl font-extrabold text-accent-kaly">
               {stats.filmes}
             </div>
-            <div className="text-xs text-zinc-400">Filmes</div>
+            <div className="text-xs text-zinc-400 mt-1">Filmes</div>
           </div>
-          <div className="bg-base-card border border-base-border rounded-xl py-4">
-            <div className="text-2xl font-bold">{stats.horas}h</div>
-            <div className="text-xs text-zinc-400">Assistidas</div>
+          <div className="bg-base-card border border-base-border rounded-2xl py-5 transition-colors hover:border-white/20">
+            <div className="text-3xl font-extrabold">{stats.horas}h</div>
+            <div className="text-xs text-zinc-400 mt-1">Assistidas</div>
           </div>
         </div>
       </div>
@@ -202,12 +233,15 @@ export default function Page() {
           onCancelEdit={() => setEditando(null)}
         />
 
-        <div className="bg-base-card border border-base-border rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-base-card border border-base-border rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-4">
             <span className="font-semibold flex items-center gap-2">
-              <List size={18} /> Minha Lista
+              <span className="w-9 h-9 rounded-xl bg-accent-luiz/15 text-accent-luiz flex items-center justify-center">
+                <List size={18} />
+              </span>
+              Minha Lista
             </span>
-            <span className="text-xs bg-white/5 px-2 py-1 rounded-full text-zinc-400">
+            <span className="text-xs bg-white/5 px-3 py-1 rounded-full text-zinc-400 border border-white/10">
               {midias.length} itens
             </span>
           </div>
