@@ -158,13 +158,13 @@ export default function Page() {
             aria-hidden
             className="absolute -inset-x-24 -inset-y-6 rounded-full bg-gradient-to-r from-accent-luiz/40 via-purple-500/20 to-accent-kaly/40 blur-3xl opacity-70"
           />
-          <div className="relative w-28 h-28 rounded-full p-[3px] bg-gradient-to-br from-accent-luiz via-purple-400 to-accent-kaly shadow-2xl shadow-accent-luiz/20">
+          <div className="relative w-40 h-40 rounded-full p-[3px] bg-gradient-to-br from-accent-luiz via-purple-400 to-accent-kaly shadow-2xl shadow-accent-luiz/20">
             <div className="relative w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-accent-luiz/30 to-accent-kaly/30 flex items-center justify-center">
-              <Clapperboard size={40} className="text-white/80" />
+              <Clapperboard size={44} className="text-white/80" />
               <img
                 src="/perfil.jpg"
                 alt="Luiz e Kaly"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover object-center"
               />
             </div>
           </div>
