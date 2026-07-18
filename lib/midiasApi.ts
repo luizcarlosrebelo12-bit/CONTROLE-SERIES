@@ -2,22 +2,22 @@ import { Midia } from "./types";
 import { supabase, supabaseConfigurado } from "./supabaseClient";
 import { loadMidias as loadLocal, saveMidias as saveLocal } from "./storage";
 
-const TABLE = "midias";
+const TABLE = "media";
 
 function paraLinha(m: Midia) {
   return {
     id: m.id,
-    nome: m.nome,
-    tipo: m.tipo,
-    pessoa: m.pessoa,
-    temporada: m.temporada,
-    episodio: m.episodio,
-    minutos: m.minutos,
+    title: m.nome,
+    type: m.tipo,
+    user_name: m.pessoa,
+    season: m.temporada,
+    episode: m.episodio,
+    minutes: m.minutos,
     status: m.status,
     tmdb_id: m.tmdbId ?? null,
-    ultima_temporada_vista: m.ultimaTemporadaVista ?? null,
-    ultimo_episodio_visto: m.ultimoEpisodioVisto ?? null,
-    novidade: m.novidade ?? null,
+    last_season_seen: m.ultimaTemporadaVista ?? null,
+    last_episode_seen: m.ultimoEpisodioVisto ?? null,
+    news: m.novidade ?? null,
     tmdb_status: m.tmdbStatus ?? null,
   };
 }
@@ -25,19 +25,19 @@ function paraLinha(m: Midia) {
 function daLinha(r: any): Midia {
   return {
     id: r.id,
-    nome: r.nome,
-    tipo: r.tipo,
-    pessoa: r.pessoa,
-    temporada: r.temporada,
-    episodio: r.episodio,
-    minutos: r.minutos,
-    status: r.status,
+    nome: r.title,
+    tipo: r.type,
+    pessoa: r.user_name,
+    temporada: r.season,
+    episodio: r.episode,
+    minutos: r.minutes,
+    status: r.status ?? "assistindo",
     tmdbId: r.tmdb_id ?? undefined,
-    ultimaTemporadaVista: r.ultima_temporada_vista ?? undefined,
-    ultimoEpisodioVisto: r.ultimo_episodio_visto ?? undefined,
-    novidade: r.novidade ?? null,
+    ultimaTemporadaVista: r.last_season_seen ?? undefined,
+    ultimoEpisodioVisto: r.last_episode_seen ?? undefined,
+    novidade: r.news ?? null,
     tmdbStatus: r.tmdb_status ?? undefined,
-    criadoEm: r.criado_em ?? undefined,
+    criadoEm: r.created_at ?? undefined,
   };
 }
 
@@ -48,7 +48,7 @@ export async function buscarMidias(): Promise<Midia[]> {
   const { data, error } = await supabase
     .from(TABLE)
     .select("*")
-    .order("criado_em", { ascending: false });
+    .order("created_at", { ascending: false });
   if (error) {
     console.error("Erro ao buscar mídias do Supabase:", error.message);
     return loadLocal();
