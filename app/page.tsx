@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Midia, StatusSerie } from "@/lib/types";
 import { loadMidias, saveMidias, loadTmdbKey, saveTmdbKey } from "@/lib/storage";
 import { SeriesCard } from "@/components/SeriesCard";
-import { AddSeriesForm } from "@/components/AddSeriesForm";
+import { MediaForm } from "@/components/MediaForm";
 import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
 
@@ -13,6 +13,7 @@ export default function Page() {
   const [apiKey, setApiKey] = useState("");
   const [checando, setChecando] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [editando, setEditando] = useState<Midia | null>(null);
 
   useEffect(() => {
     setMidias(loadMidias());
@@ -37,6 +38,13 @@ export default function Page() {
 
   function handleDelete(id: string) {
     setMidias((prev) => prev.filter((m) => m.id !== id));
+  }
+
+  function handleUpdate(atualizada: Midia) {
+    setMidias((prev) =>
+      prev.map((m) => (m.id === atualizada.id ? atualizada : m))
+    );
+    setEditando(null);
   }
 
   function handleUpdateStatus(id: string, status: StatusSerie) {
@@ -144,7 +152,12 @@ export default function Page() {
           {checando ? "Checando novidades..." : "🔄 Checar novos episódios/temporadas"}
         </button>
 
-        <AddSeriesForm onAdd={handleAdd} />
+        <MediaForm
+          modoEdicao={editando}
+          onAdd={handleAdd}
+          onUpdate={handleUpdate}
+          onCancelEdit={() => setEditando(null)}
+        />
 
         <div className="bg-base-card border border-base-border rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
@@ -167,6 +180,7 @@ export default function Page() {
                   onDelete={handleDelete}
                   onUpdateStatus={handleUpdateStatus}
                   onMarcarVisto={handleMarcarVisto}
+                  onEdit={setEditando}
                 />
               ))}
             </div>

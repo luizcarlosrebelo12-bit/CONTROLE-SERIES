@@ -9,6 +9,7 @@ interface Props {
   onDelete: (id: string) => void;
   onUpdateStatus: (id: string, status: StatusSerie) => void;
   onMarcarVisto: (id: string) => void;
+  onEdit: (midia: Midia) => void;
 }
 
 export function SeriesCard({
@@ -16,6 +17,7 @@ export function SeriesCard({
   onDelete,
   onUpdateStatus,
   onMarcarVisto,
+  onEdit,
 }: Props) {
   const [editingStatus, setEditingStatus] = useState(false);
 
@@ -82,6 +84,13 @@ export function SeriesCard({
             Marquei como visto
           </button>
         )}
+        <button
+          onClick={() => onEdit(midia)}
+          className="text-zinc-500 hover:text-accent-luiz p-1"
+          aria-label="Editar"
+        >
+          ✏️
+        </button>
         <button
           onClick={() => onDelete(midia.id)}
           className="text-zinc-500 hover:text-red-400 p-1"
