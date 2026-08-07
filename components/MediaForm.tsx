@@ -87,6 +87,31 @@ export function MediaForm({
     onCancelEdit();
   }
 
+  // Evita o "0" travado nos campos numéricos: mostra vazio quando o
+  // valor é 0, permitindo digitar livremente sem ficar "05", "010" etc.
+  function numberFieldProps(
+    value: number,
+    onValue: (n: number) => void,
+    opts?: { max?: number }
+  ) {
+    return {
+      type: "text" as const,
+      inputMode: "numeric" as const,
+      value: value === 0 ? "" : String(value),
+      onFocus: (e: React.FocusEvent<HTMLInputElement>) => e.target.select(),
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value.replace(/[^\d]/g, "");
+        if (raw === "") {
+          onValue(0);
+          return;
+        }
+        let n = Number(raw);
+        if (opts?.max !== undefined && n > opts.max) n = opts.max;
+        onValue(n);
+      },
+    };
+  }
+
   return (
     <div className="bg-base-card border border-base-border rounded-2xl overflow-hidden">
       <button
@@ -177,16 +202,18 @@ export function MediaForm({
             </div>
           </div>
 
-          {/* Titulo */}
-          <div>
-            <label className="text-sm text-zinc-400 mb-2 block">Título</label>
-            <input
-              className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-              placeholder="Nome da série ou filme"
-              value={form.nome}
-              onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
-            />
-          </div>
+{/* Titulo */}
+<div>
+  <label className="text-sm text-zinc-400 mb-2 block">Título</label>
+  <input
+    className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3 uppercase"
+    placeholder="Nome da série ou filme"
+    value={form.nome}
+    onChange={(e) =>
+      setForm((f) => ({ ...f, nome: e.target.value.toUpperCase() }))
+    }
+  />
+</div>
 
           {/* Temporada / Episodio */}
           <div className="grid grid-cols-2 gap-3">
@@ -195,13 +222,10 @@ export function MediaForm({
                 Temporada
               </label>
               <input
-                type="number"
-                min={1}
                 className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                value={form.temporada}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, temporada: Number(e.target.value) }))
-                }
+                {...numberFieldProps(form.temporada, (n) =>
+                  setForm((f) => ({ ...f, temporada: n }))
+                )}
               />
             </div>
             <div>
@@ -209,13 +233,10 @@ export function MediaForm({
                 Episódio
               </label>
               <input
-                type="number"
-                min={1}
                 className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                value={form.episodio}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, episodio: Number(e.target.value) }))
-                }
+                {...numberFieldProps(form.episodio, (n) =>
+                  setForm((f) => ({ ...f, episodio: n }))
+                )}
               />
             </div>
           </div>
@@ -228,13 +249,10 @@ export function MediaForm({
             <div className="grid grid-cols-2 gap-3">
               <div className="relative">
                 <input
-                  type="number"
-                  min={0}
-                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                  value={form.horas}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, horas: Number(e.target.value) }))
-                  }
+                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3 pr-9"
+                  {...numberFieldProps(form.horas, (n) =>
+                    setForm((f) => ({ ...f, horas: n }))
+                  )}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">
                   h
@@ -242,14 +260,12 @@ export function MediaForm({
               </div>
               <div className="relative">
                 <input
-                  type="number"
-                  min={0}
-                  max={59}
-                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                  value={form.minutos}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, minutos: Number(e.target.value) }))
-                  }
+                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3 pr-10"
+                  {...numberFieldProps(
+                    form.minutos,
+                    (n) => setForm((f) => ({ ...f, minutos: n })),
+                    { max: 59 }
+                  )}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">
                   min

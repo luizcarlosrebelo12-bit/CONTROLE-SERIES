@@ -23,8 +23,9 @@ export function SeriesCard({
   const [editingStatus, setEditingStatus] = useState(false);
 
   return (
-    <div className="bg-base-card border border-base-border rounded-2xl p-4 flex items-center justify-between gap-4 transition-colors hover:border-accent-luiz/40">
-      <div className="flex items-center gap-3 min-w-0">
+    <div className="bg-base-card border border-base-border rounded-2xl p-4 flex flex-col gap-3 transition-colors hover:border-accent-luiz/40">
+      {/* Linha 1: ícone + nome + badges */}
+      <div className="flex items-start gap-3 min-w-0">
         <div
           className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg ${
             midia.pessoa.toLowerCase() === "kaly"
@@ -34,7 +35,7 @@ export function SeriesCard({
         >
           {midia.tipo === "serie" ? <Tv size={20} /> : <Film size={20} />}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold truncate">{midia.nome}</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-accent-luiz/15 text-accent-luiz border border-accent-luiz/30">
@@ -64,7 +65,7 @@ export function SeriesCard({
             )}
             {midia.novidade && <NovidadeBadge novidade={midia.novidade} />}
           </div>
-          <div className="text-sm text-zinc-400 flex items-center gap-3 mt-1">
+          <div className="text-sm text-zinc-400 flex items-center gap-3 mt-1 flex-wrap">
             <span
               className={`flex items-center gap-1 ${
                 midia.pessoa.toLowerCase() === "kaly"
@@ -84,11 +85,12 @@ export function SeriesCard({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      {/* Linha 2: ações, sempre embaixo — nunca sobrepõe os badges */}
+      <div className="flex items-center gap-2 flex-wrap justify-end">
         {midia.novidade && (
           <button
             onClick={() => onMarcarVisto(midia.id)}
-            className="text-xs px-3 py-1 rounded-lg bg-accent-luiz/20 text-accent-luiz border border-accent-luiz/40 hover:bg-accent-luiz/30"
+            className="text-xs px-3 py-1.5 rounded-lg bg-accent-luiz/20 text-accent-luiz border border-accent-luiz/40 hover:bg-accent-luiz/30"
           >
             Marquei como visto
           </button>

@@ -9,7 +9,7 @@ import { SeriesCard } from "@/components/SeriesCard";
 import { MediaForm } from "@/components/MediaForm";
 import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
-import { Clapperboard, RefreshCw, List, Cloud, HardDrive } from "lucide-react";
+import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck } from "lucide-react";
 
 const SEED_KEY = "controle-series:seeded-v1";
 
@@ -41,6 +41,7 @@ export default function Page() {
   const [midias, setMidias] = useState<Midia[]>([]);
   const [apiKey, setApiKey] = useState("");
   const [checando, setChecando] = useState(false);
+  const [confirmandoTodas, setConfirmandoTodas] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState<Midia | null>(null);
 
@@ -69,6 +70,12 @@ export default function Page() {
     const minutos = midias.reduce((acc, m) => acc + (m.minutos || 0), 0);
     return { series, filmes, horas: Math.round(minutos / 60) };
   }, [midias]);
+
+  // Quantidade de itens com novidade pendente (novo episódio/temporada)
+  const novidadesPendentes = useMemo(
+    () => midias.filter((m) => m.novidade),
+    [midias]
+  );
 
   async function handleAdd(nova: Midia) {
     setMidias((prev) => [nova, ...prev]);
@@ -107,6 +114,28 @@ export default function Page() {
     };
     setMidias((prev) => prev.map((m) => (m.id === id ? atualizada : m)));
     await salvarMidia(atualizada);
+  }
+
+  // Confirma TODAS as novidades pendentes de uma vez só
+  async function handleConfirmarTodasNovidades() {
+    if (novidadesPendentes.length === 0) return;
+    setConfirmandoTodas(true);
+    try {
+      const atualizadas = novidadesPendentes.map((m) => ({
+        ...m,
+        temporada: m.ultimaTemporadaVista ?? m.temporada,
+        episodio: m.ultimoEpisodioVisto ?? m.episodio,
+        novidade: null,
+      }));
+
+      setMidias((prev) =>
+        prev.map((m) => atualizadas.find((a) => a.id === m.id) || m)
+      );
+
+      await Promise.all(atualizadas.map((m) => salvarMidia(m)));
+    } finally {
+      setConfirmandoTodas(false);
+    }
   }
 
   async function checarNovidades() {
@@ -219,6 +248,20 @@ export default function Page() {
           <RefreshCw size={18} className={checando ? "animate-spin" : ""} />
           {checando ? "Checando novidades..." : "Checar novos episódios/temporadas"}
         </button>
+
+        {/* Aparece só quando existe pelo menos 1 novidade pendente */}
+        {novidadesPendentes.length > 0 && (
+          <button
+            onClick={handleConfirmarTodasNovidades}
+            disabled={confirmandoTodas}
+            className="bg-green-500/15 border border-green-500/40 text-green-400 rounded-xl py-3 font-semibold flex items-center justify-center gap-2 hover:bg-green-500/25 disabled:opacity-50"
+          >
+            <CheckCheck size={18} />
+            {confirmandoTodas
+              ? "Confirmando..."
+              : `Confirmar todos (${novidadesPendentes.length})`}
+          </button>
+        )}
 
         <MediaForm
           modoEdicao={editando}
