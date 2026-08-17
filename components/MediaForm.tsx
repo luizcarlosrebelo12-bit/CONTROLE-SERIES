@@ -51,6 +51,10 @@ export function MediaForm({
     e.preventDefault();
     if (!form.nome.trim()) return;
     const totalMinutos = form.horas * 60 + form.minutos;
+    // Filme não tem temporada/episódio, então fixamos em 1 pra não
+    // ficar lixo de uma edição anterior guardado no registro.
+    const temporada = form.tipo === "filme" ? 1 : form.temporada;
+    const episodio = form.tipo === "filme" ? 1 : form.episodio;
 
     if (modoEdicao) {
       onUpdate({
@@ -58,8 +62,8 @@ export function MediaForm({
         nome: form.nome.trim(),
         tipo: form.tipo,
         pessoa: form.pessoa,
-        temporada: form.temporada,
-        episodio: form.episodio,
+        temporada,
+        episodio,
         minutos: totalMinutos,
       });
     } else {
@@ -68,12 +72,12 @@ export function MediaForm({
         nome: form.nome.trim(),
         tipo: form.tipo,
         pessoa: form.pessoa,
-        temporada: form.temporada,
-        episodio: form.episodio,
+        temporada,
+        episodio,
         minutos: totalMinutos,
         status: "assistindo",
-        ultimaTemporadaVista: form.temporada,
-        ultimoEpisodioVisto: form.episodio,
+        ultimaTemporadaVista: temporada,
+        ultimoEpisodioVisto: episodio,
         novidade: null,
       });
     }
@@ -111,6 +115,8 @@ export function MediaForm({
       },
     };
   }
+
+  const ehSerie = form.tipo === "serie";
 
   return (
     <div className="bg-base-card border border-base-border rounded-2xl overflow-hidden">
@@ -163,7 +169,7 @@ export function MediaForm({
               onClick={() => setForm((f) => ({ ...f, tipo: "filme" }))}
               className={`py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition ${
                 form.tipo === "filme"
-                  ? "bg-accent-luiz text-white"
+                  ? "bg-amber-500 text-white"
                   : "bg-base-bg border border-base-border text-zinc-400"
               }`}
             >
@@ -202,44 +208,46 @@ export function MediaForm({
             </div>
           </div>
 
-{/* Titulo */}
-<div>
-  <label className="text-sm text-zinc-400 mb-2 block">Título</label>
-  <input
-    className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3 uppercase"
-    placeholder="Nome da série ou filme"
-    value={form.nome}
-    onChange={(e) =>
-      setForm((f) => ({ ...f, nome: e.target.value.toUpperCase() }))
-    }
-  />
-</div>
-
-          {/* Temporada / Episodio */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm text-zinc-400 mb-2 block">
-                Temporada
-              </label>
-              <input
-                className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                {...numberFieldProps(form.temporada, (n) =>
-                  setForm((f) => ({ ...f, temporada: n }))
-                )}
-              />
-            </div>
-            <div>
-              <label className="text-sm text-zinc-400 mb-2 block">
-                Episódio
-              </label>
-              <input
-                className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
-                {...numberFieldProps(form.episodio, (n) =>
-                  setForm((f) => ({ ...f, episodio: n }))
-                )}
-              />
-            </div>
+          {/* Titulo */}
+          <div>
+            <label className="text-sm text-zinc-400 mb-2 block">Título</label>
+            <input
+              className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3 uppercase"
+              placeholder="Nome da série ou filme"
+              value={form.nome}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, nome: e.target.value.toUpperCase() }))
+              }
+            />
           </div>
+
+          {/* Temporada / Episodio — só faz sentido pra série */}
+          {ehSerie && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-zinc-400 mb-2 block">
+                  Temporada
+                </label>
+                <input
+                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
+                  {...numberFieldProps(form.temporada, (n) =>
+                    setForm((f) => ({ ...f, temporada: n }))
+                  )}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-zinc-400 mb-2 block">
+                  Episódio
+                </label>
+                <input
+                  className="w-full bg-base-bg border border-base-border rounded-xl px-4 py-3"
+                  {...numberFieldProps(form.episodio, (n) =>
+                    setForm((f) => ({ ...f, episodio: n }))
+                  )}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Tempo assistido */}
           <div>

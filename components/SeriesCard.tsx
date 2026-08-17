@@ -21,6 +21,7 @@ export function SeriesCard({
   onEdit,
 }: Props) {
   const [editingStatus, setEditingStatus] = useState(false);
+  const ehFilme = midia.tipo === "filme";
 
   return (
     <div className="bg-base-card border border-base-border rounded-2xl p-4 flex flex-col gap-3 transition-colors hover:border-accent-luiz/40">
@@ -33,13 +34,19 @@ export function SeriesCard({
               : "bg-gradient-to-br from-accent-luiz to-blue-600 shadow-accent-luiz/25"
           }`}
         >
-          {midia.tipo === "serie" ? <Tv size={20} /> : <Film size={20} />}
+          {ehFilme ? <Film size={20} /> : <Tv size={20} />}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold truncate">{midia.nome}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-accent-luiz/15 text-accent-luiz border border-accent-luiz/30">
-              {midia.tipo === "serie" ? "Série" : "Filme"}
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full border ${
+                ehFilme
+                  ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                  : "bg-accent-luiz/15 text-accent-luiz border-accent-luiz/30"
+              }`}
+            >
+              {ehFilme ? "Filme" : "Série"}
             </span>
             {editingStatus ? (
               <select
@@ -75,9 +82,11 @@ export function SeriesCard({
             >
               <User size={14} /> {midia.pessoa}
             </span>
-            <span>
-              T{midia.temporada} E{midia.episodio}
-            </span>
+            {!ehFilme && (
+              <span>
+                T{midia.temporada} E{midia.episodio}
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <Clock size={14} /> {midia.minutos} min
             </span>
