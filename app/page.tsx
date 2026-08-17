@@ -87,12 +87,17 @@ export default function Page() {
     await excluirMidia(id);
   }
 
-  async function handleUpdate(atualizada: Midia) {
+async function handleUpdate(atualizada: Midia) {
+    const comSync = {
+      ...atualizada,
+      ultimaTemporadaVista: atualizada.temporada,
+      ultimoEpisodioVisto: atualizada.episodio,
+    };
     setMidias((prev) =>
-      prev.map((m) => (m.id === atualizada.id ? atualizada : m))
+      prev.map((m) => (m.id === comSync.id ? comSync : m))
     );
     setEditando(null);
-    await salvarMidia(atualizada);
+    await salvarMidia(comSync);
   }
 
   async function handleUpdateStatus(id: string, status: StatusSerie) {
