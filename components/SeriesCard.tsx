@@ -13,6 +13,15 @@ interface Props {
   onEdit: (midia: Midia) => void;
 }
 
+// Cores usadas nas <option> do select nativo. Tailwind não estiliza
+// bem elementos <option>, então usamos hex direto via style inline.
+const STATUS_OPTION_COLORS: Record<StatusSerie, string> = {
+  assistindo: "#4ade80", // verde
+  finalizado: "#f87171", // vermelho
+  aguardando_temporada: "#facc15", // amarelo
+  pausado: "#a1a1aa", // cinza
+};
+
 export function SeriesCard({
   midia,
   onDelete,
@@ -58,9 +67,17 @@ export function SeriesCard({
                   setEditingStatus(false);
                 }}
                 className="text-xs bg-base-bg border border-base-border rounded-full px-2 py-0.5"
+                style={{ color: STATUS_OPTION_COLORS[midia.status] }}
               >
                 {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
+                  <option
+                    key={value}
+                    value={value}
+                    style={{
+                      color: STATUS_OPTION_COLORS[value as StatusSerie],
+                      backgroundColor: "#18181b",
+                    }}
+                  >
                     {label}
                   </option>
                 ))}

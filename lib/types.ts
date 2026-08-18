@@ -31,8 +31,8 @@ export const STATUS_LABELS: Record<StatusSerie, string> = {
 };
 
 export const STATUS_COLORS: Record<StatusSerie, string> = {
-  assistindo: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-  finalizado: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
-  aguardando_temporada: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-  pausado: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  assistindo: "bg-green-500/15 text-green-400 border-green-500/30",
+  finalizado: "bg-red-500/15 text-red-400 border-red-500/30",
+  aguardando_temporada: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+  pausado: "bg-zinc-500/15 text-zinc-400 border-zinc-500/30",
 };
