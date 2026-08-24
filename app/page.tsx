@@ -9,7 +9,7 @@ import { SeriesCard } from "@/components/SeriesCard";
 import { MediaForm } from "@/components/MediaForm";
 import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
-import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck, Eye } from "lucide-react";
+import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck, Eye, ChevronDown } from "lucide-react";
 
 const SEED_KEY = "controle-series:seeded-v1";
 
@@ -52,6 +52,15 @@ export default function Page() {
   const [confirmandoTodas, setConfirmandoTodas] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [editando, setEditando] = useState<Midia | null>(null);
+  // Controla quais seções de status estão abertas. Começa só com
+  // "assistindo" aberta; as outras vêm fechadas.
+  const [gruposAbertos, setGruposAbertos] = useState<Record<string, boolean>>({
+    assistindo: true,
+  });
+
+  function toggleGrupo(status: string) {
+    setGruposAbertos((prev) => ({ ...prev, [status]: !prev[status] }));
+  }
 
   async function recarregar() {
     const dados = await buscarMidias();
@@ -324,29 +333,45 @@ export default function Page() {
               Nenhuma série ou filme adicionado ainda.
             </p>
           ) : (
-            <div className="flex flex-col gap-6">
-              {gruposPorStatus.map((grupo) => (
-                <div key={grupo.status} className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2 px-1">
-                    <span className="text-sm font-semibold text-zinc-300">
-                      {grupo.label}
-                    </span>
-                    <span className="text-xs bg-white/5 px-2 py-0.5 rounded-full text-zinc-500 border border-white/10">
-                      {grupo.itens.length}
-                    </span>
+            <div className="flex flex-col gap-3">
+              {gruposPorStatus.map((grupo) => {
+                const aberto = !!gruposAbertos[grupo.status];
+                return (
+                  <div key={grupo.status} className="flex flex-col">
+                    <button
+                      onClick={() => toggleGrupo(grupo.status)}
+                      className="flex items-center gap-2 px-1 py-2 w-full text-left hover:opacity-80"
+                    >
+                      <ChevronDown
+                        size={16}
+                        className={`text-zinc-500 transition-transform ${
+                          aberto ? "rotate-0" : "-rotate-90"
+                        }`}
+                      />
+                      <span className="text-sm font-semibold text-zinc-300">
+                        {grupo.label}
+                      </span>
+                      <span className="text-xs bg-white/5 px-2 py-0.5 rounded-full text-zinc-500 border border-white/10">
+                        {grupo.itens.length}
+                      </span>
+                    </button>
+                    {aberto && (
+                      <div className="flex flex-col gap-3 mt-1">
+                        {grupo.itens.map((m) => (
+                          <SeriesCard
+                            key={m.id}
+                            midia={m}
+                            onDelete={handleDelete}
+                            onUpdateStatus={handleUpdateStatus}
+                            onMarcarVisto={handleMarcarVisto}
+                            onEdit={setEditando}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {grupo.itens.map((m) => (
-                    <SeriesCard
-                      key={m.id}
-                      midia={m}
-                      onDelete={handleDelete}
-                      onUpdateStatus={handleUpdateStatus}
-                      onMarcarVisto={handleMarcarVisto}
-                      onEdit={setEditando}
-                    />
-                  ))}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
