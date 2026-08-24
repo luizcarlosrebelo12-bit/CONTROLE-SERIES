@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Midia, StatusSerie } from "@/lib/types";
+import { Midia, StatusSerie, STATUS_LABELS } from "@/lib/types";
 import { buscarMidias, salvarMidia, excluirMidia } from "@/lib/midiasApi";
 import { loadTmdbKey, saveTmdbKey } from "@/lib/storage";
 import { supabaseConfigurado } from "@/lib/supabaseClient";
@@ -9,9 +9,17 @@ import { SeriesCard } from "@/components/SeriesCard";
 import { MediaForm } from "@/components/MediaForm";
 import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
-import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck } from "lucide-react";
+import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck, Eye } from "lucide-react";
 
 const SEED_KEY = "controle-series:seeded-v1";
+
+// Ordem em que os grupos de status aparecem na lista e no contador
+const ORDEM_STATUS: StatusSerie[] = [
+  "assistindo",
+  "aguardando_temporada",
+  "pausado",
+  "finalizado",
+];
 
 function dadosIniciais(): Midia[] {
   const base = [
@@ -67,9 +75,25 @@ export default function Page() {
   const stats = useMemo(() => {
     const series = midias.filter((m) => m.tipo === "serie").length;
     const filmes = midias.filter((m) => m.tipo === "filme").length;
-    const minutos = midias.reduce((acc, m) => acc + (m.minutos || 0), 0);
-    return { series, filmes, horas: Math.round(minutos / 60) };
+    return { series, filmes };
   }, [midias]);
+
+  // Agrupa as mídias por status, na ordem definida em ORDEM_STATUS,
+  // e descarta grupos vazios (não mostra título de status sem itens)
+  const gruposPorStatus = useMemo(() => {
+    return ORDEM_STATUS.map((status) => ({
+      status,
+      label: STATUS_LABELS[status],
+      itens: midias.filter((m) => m.status === status),
+    })).filter((g) => g.itens.length > 0);
+  }, [midias]);
+
+  // Contagem rápida de quantas mídias estão "assistindo" agora,
+  // usada no card de estatísticas no lugar das horas assistidas
+  const assistindoAgora = useMemo(
+    () => midias.filter((m) => m.status === "assistindo").length,
+    [midias]
+  );
 
   // Quantidade de itens com novidade pendente (novo episódio/temporada)
   const novidadesPendentes = useMemo(
@@ -87,7 +111,7 @@ export default function Page() {
     await excluirMidia(id);
   }
 
-async function handleUpdate(atualizada: Midia) {
+  async function handleUpdate(atualizada: Midia) {
     const comSync = {
       ...atualizada,
       ultimaTemporadaVista: atualizada.temporada,
@@ -236,8 +260,11 @@ async function handleUpdate(atualizada: Midia) {
             <div className="text-xs text-zinc-400 mt-1">Filmes</div>
           </div>
           <div className="bg-base-card border border-base-border rounded-2xl py-5 transition-colors hover:border-white/20">
-            <div className="text-3xl font-extrabold">{stats.horas}h</div>
-            <div className="text-xs text-zinc-400 mt-1">Assistidas</div>
+            <div className="text-3xl font-extrabold flex items-center justify-center gap-1">
+              <Eye size={22} className="text-green-400" />
+              {assistindoAgora}
+            </div>
+            <div className="text-xs text-zinc-400 mt-1">Assistindo</div>
           </div>
         </div>
       </div>
@@ -297,16 +324,28 @@ async function handleUpdate(atualizada: Midia) {
               Nenhuma série ou filme adicionado ainda.
             </p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {midias.map((m) => (
-                <SeriesCard
-                  key={m.id}
-                  midia={m}
-                  onDelete={handleDelete}
-                  onUpdateStatus={handleUpdateStatus}
-                  onMarcarVisto={handleMarcarVisto}
-                  onEdit={setEditando}
-                />
+            <div className="flex flex-col gap-6">
+              {gruposPorStatus.map((grupo) => (
+                <div key={grupo.status} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2 px-1">
+                    <span className="text-sm font-semibold text-zinc-300">
+                      {grupo.label}
+                    </span>
+                    <span className="text-xs bg-white/5 px-2 py-0.5 rounded-full text-zinc-500 border border-white/10">
+                      {grupo.itens.length}
+                    </span>
+                  </div>
+                  {grupo.itens.map((m) => (
+                    <SeriesCard
+                      key={m.id}
+                      midia={m}
+                      onDelete={handleDelete}
+                      onUpdateStatus={handleUpdateStatus}
+                      onMarcarVisto={handleMarcarVisto}
+                      onEdit={setEditando}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           )}
