@@ -20,6 +20,7 @@ const config: Config = {
         accent: {
           luiz: "#4d8dff",
           kaly: "#e85d9c",
+          casal: "#ef4444",
         },
       },
     },

@@ -3,7 +3,7 @@
 import { Midia, STATUS_LABELS, StatusSerie } from "@/lib/types";
 import { StatusBadge, NovidadeBadge } from "./StatusBadge";
 import { useState } from "react";
-import { Tv, Film, User, Clock, Pencil, Trash2 } from "lucide-react";
+import { Tv, Film, User, Heart, Clock, Pencil, Trash2 } from "lucide-react";
 
 interface Props {
   midia: Midia;
@@ -31,6 +31,9 @@ export function SeriesCard({
 }: Props) {
   const [editingStatus, setEditingStatus] = useState(false);
   const ehFilme = midia.tipo === "filme";
+  const pessoaLower = midia.pessoa.toLowerCase();
+  const ehKaly = pessoaLower === "kaly";
+  const ehCasal = pessoaLower === "casal";
 
   return (
     <div className="bg-base-card border border-base-border rounded-2xl p-4 flex flex-col gap-3 transition-colors hover:border-accent-luiz/40">
@@ -38,7 +41,9 @@ export function SeriesCard({
       <div className="flex items-start gap-3 min-w-0">
         <div
           className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg ${
-            midia.pessoa.toLowerCase() === "kaly"
+            ehCasal
+              ? "bg-gradient-to-br from-accent-casal to-red-700 shadow-accent-casal/25"
+              : ehKaly
               ? "bg-gradient-to-br from-accent-kaly to-pink-600 shadow-accent-kaly/25"
               : "bg-gradient-to-br from-accent-luiz to-blue-600 shadow-accent-luiz/25"
           }`}
@@ -92,12 +97,19 @@ export function SeriesCard({
           <div className="text-sm text-zinc-400 flex items-center gap-3 mt-1 flex-wrap">
             <span
               className={`flex items-center gap-1 ${
-                midia.pessoa.toLowerCase() === "kaly"
+                ehCasal
+                  ? "text-accent-casal"
+                  : ehKaly
                   ? "text-accent-kaly"
                   : "text-accent-luiz"
               }`}
             >
-              <User size={14} /> {midia.pessoa}
+              {ehCasal ? (
+                <Heart size={14} className="fill-accent-casal" />
+              ) : (
+                <User size={14} />
+              )}{" "}
+              {midia.pessoa}
             </span>
             {!ehFilme && (
               <span>

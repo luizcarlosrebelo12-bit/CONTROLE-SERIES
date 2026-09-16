@@ -2,7 +2,7 @@
 
 import { Midia } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Tv, Film, Pencil, Plus, ChevronDown, X, Save, Sparkles } from "lucide-react";
+import { Tv, Film, Pencil, Plus, ChevronDown, X, Save, Sparkles, Heart } from "lucide-react";
 
 interface Props {
   modoEdicao?: Midia | null;
@@ -182,7 +182,7 @@ export function MediaForm({
             <label className="text-sm text-zinc-400 mb-2 block">
               Quem assistiu
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, pessoa: "Luiz" }))}
@@ -204,6 +204,21 @@ export function MediaForm({
                 }`}
               >
                 Kaly
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm((f) => ({ ...f, pessoa: "Casal" }))}
+                className={`py-3 rounded-xl font-semibold flex items-center justify-center gap-1.5 transition ${
+                  form.pessoa === "Casal"
+                    ? "bg-red-500 text-white"
+                    : "bg-base-bg border border-base-border text-zinc-400"
+                }`}
+              >
+                <Heart
+                  size={15}
+                  className={form.pessoa === "Casal" ? "fill-white" : ""}
+                />
+                Casal
               </button>
             </div>
           </div>
