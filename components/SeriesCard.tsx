@@ -22,6 +22,16 @@ const STATUS_OPTION_COLORS: Record<StatusSerie, string> = {
   pausado: "#a1a1aa", // cinza
 };
 
+// Converte minutos totais em "1h 14min", "2h", "45min", etc.
+function formatarDuracao(totalMinutos: number): string {
+  const horas = Math.floor(totalMinutos / 60);
+  const minutos = totalMinutos % 60;
+
+  if (horas === 0) return `${minutos}min`;
+  if (minutos === 0) return `${horas}h`;
+  return `${horas}h ${minutos}min`;
+}
+
 export function SeriesCard({
   midia,
   onDelete,
@@ -117,7 +127,7 @@ export function SeriesCard({
               </span>
             )}
             <span className="flex items-center gap-1">
-              <Clock size={14} /> {midia.minutos} min
+              <Clock size={14} /> {formatarDuracao(midia.minutos)}
             </span>
           </div>
         </div>
