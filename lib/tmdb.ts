@@ -2,6 +2,8 @@ import { Midia, Novidade } from "./types";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 
+const TMDB_API_KEY = "51b905a2437f7a301f3be09d887efe9a";
+
 export interface TmdbSearchResult {
   id: number;
   name: string;
@@ -9,13 +11,10 @@ export interface TmdbSearchResult {
   poster_path?: string | null;
 }
 
-export async function buscarSerie(
-  nome: string,
-  apiKey: string
-): Promise<TmdbSearchResult[]> {
+export async function buscarSerie(nome: string): Promise<TmdbSearchResult[]> {
   const url = `${BASE_URL}/search/tv?query=${encodeURIComponent(
     nome
-  )}&language=pt-BR&api_key=${apiKey}`;
+  )}&language=pt-BR&api_key=${TMDB_API_KEY}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Falha ao buscar série no TMDB");
   const data = await res.json();
@@ -38,10 +37,9 @@ export interface TmdbTvDetails {
 }
 
 export async function buscarDetalhesSerie(
-  tmdbId: number,
-  apiKey: string
+  tmdbId: number
 ): Promise<TmdbTvDetails> {
-  const url = `${BASE_URL}/tv/${tmdbId}?language=pt-BR&api_key=${apiKey}`;
+  const url = `${BASE_URL}/tv/${tmdbId}?language=pt-BR&api_key=${TMDB_API_KEY}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Falha ao buscar detalhes da série no TMDB");
   return res.json();
