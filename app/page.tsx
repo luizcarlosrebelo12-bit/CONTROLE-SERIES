@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Midia, StatusSerie, STATUS_LABELS } from "@/lib/types";
 import { buscarMidias, salvarMidia, excluirMidia } from "@/lib/midiasApi";
-import { loadTmdbKey, saveTmdbKey } from "@/lib/storage";
 import { supabaseConfigurado } from "@/lib/supabaseClient";
 import { SeriesCard } from "@/components/SeriesCard";
 import { MediaForm } from "@/components/MediaForm";
-import { TmdbSettings } from "@/components/TmdbSettings";
 import { buscarSerie, buscarDetalhesSerie, calcularNovidade } from "@/lib/tmdb";
 import { Clapperboard, RefreshCw, List, Cloud, HardDrive, CheckCheck, Eye, ChevronDown } from "lucide-react";
 
@@ -47,7 +45,6 @@ function dadosIniciais(): Midia[] {
 
 export default function Page() {
   const [midias, setMidias] = useState<Midia[]>([]);
-  const [apiKey, setApiKey] = useState("");
   const [checando, setChecando] = useState(false);
   const [confirmandoTodas, setConfirmandoTodas] = useState(false);
   const [carregando, setCarregando] = useState(true);
@@ -69,7 +66,6 @@ export default function Page() {
   }
 
   useEffect(() => {
-    setApiKey(loadTmdbKey());
     recarregar().then(async (dados) => {
       const jaSemeado = typeof window !== "undefined" && window.localStorage.getItem(SEED_KEY);
       if ((!dados || dados.length === 0) && !jaSemeado) {
@@ -177,10 +173,6 @@ export default function Page() {
   }
 
   async function checarNovidades() {
-    if (!apiKey) {
-      alert("Configure sua chave da API do TMDB primeiro.");
-      return;
-    }
     setChecando(true);
     try {
       const atualizadas = await Promise.all(
@@ -190,11 +182,11 @@ export default function Page() {
             try {
               let tmdbId = m.tmdbId;
               if (!tmdbId) {
-                const resultados = await buscarSerie(m.nome, apiKey);
+                const resultados = await buscarSerie(m.nome);
                 if (resultados.length === 0) return m;
                 tmdbId = resultados[0].id;
               }
-              const detalhes = await buscarDetalhesSerie(tmdbId, apiKey);
+              const detalhes = await buscarDetalhesSerie(tmdbId);
               const { novidade, tmdbStatus } = calcularNovidade(m, detalhes);
               return { ...m, tmdbId, novidade, tmdbStatus };
             } catch {
@@ -209,11 +201,6 @@ export default function Page() {
     } finally {
       setChecando(false);
     }
-  }
-
-  function handleSaveKey(key: string) {
-    setApiKey(key);
-    saveTmdbKey(key);
   }
 
   return (
@@ -279,8 +266,6 @@ export default function Page() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 mt-8 flex flex-col gap-4">
-        <TmdbSettings apiKey={apiKey} onSave={handleSaveKey} />
-
         <button
           onClick={checarNovidades}
           disabled={checando}
